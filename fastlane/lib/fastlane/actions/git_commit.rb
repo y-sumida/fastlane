@@ -8,7 +8,14 @@ module Fastlane
           paths = params[:path].map(&:shellescape).join(' ')
         end
 
-        result = Actions.sh("git commit -m #{params[:message].shellescape} #{paths}")
+        cmd = ["git commit -m #{params[:message].shellescape}"]
+        if params[:empty]
+          cmd << '--allow-empty'
+        else
+          cmd << "#{paths}"
+        end
+
+        result = Actions.sh(cmd.join(' '))
         UI.success("Successfully committed \"#{params[:path]}\" 💾.")
         return result
       end
@@ -31,7 +38,12 @@ module Fastlane
                                        description: "The file you want to commit",
                                        is_string: false),
           FastlaneCore::ConfigItem.new(key: :message,
-                                       description: "The commit message that should be used")
+                                       description: "The commit message that should be used"),
+          FastlaneCore::ConfigItem.new(key: :empty,
+                                       description: "Add --allow-empty option",
+                                       optional: true,
+                                       is_string: false,
+                                       default_value: false)
         ]
       end
 

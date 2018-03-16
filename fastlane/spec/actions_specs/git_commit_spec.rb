@@ -7,7 +7,7 @@ describe Fastlane do
 
       it "generates the correct git command" do
         result = Fastlane::FastFile.new.parse("lane :test do
-          git_commit(path: './fastlane/README.md', message: 'message')
+          git_commit({path: './fastlane/README.md', message: 'message'})
         end").runner.execute(:test)
 
         expect(result).to eq("git commit -m message ./fastlane/README.md")
@@ -42,6 +42,14 @@ describe Fastlane do
           git_commit(path: './fastlane/README.md', message: \"message with 'quotes' (and parens)\")
         end").runner.execute(:test)
         expect(result).to eq("git commit -m message\\ with\\ \\'quotes\\'\\ \\(and\\ parens\\) ./fastlane/README.md")
+      end
+
+      it "generates the correct git command with an allow-empty option" do
+        result = Fastlane::FastFile.new.parse("lane :test do
+          git_commit(path: ['./fastlane/README.md', './LICENSE'], message: 'message', empty: true)
+        end").runner.execute(:test)
+
+        expect(result).to eq("git commit -m message --allow-empty")
       end
     end
   end
